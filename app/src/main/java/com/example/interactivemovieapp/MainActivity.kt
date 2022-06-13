@@ -14,39 +14,42 @@ import com.google.android.exoplayer2.upstream.DefaultDataSource
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private val videoUrl =
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+    private val videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
     private lateinit var videoPlayer: ExoPlayer
-    //private var videoUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding: ActivityMainBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
-        // create instance of exoplayer to start playing
+        // Create instance of exoplayer to start playing
         videoPlayer = ExoPlayer.Builder(this).build()
-        // assign it to the view
         binding.videoView.player = videoPlayer
         initVideoPlayer(videoPlayer)
+
+        // Listener for overlay
         videoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 when (playbackState)  {
                     Player.STATE_ENDED -> binding.videoView.apply {
+                        // Show and capture while it end
                         useController = true
                         showController()
                         controllerShowTimeoutMs = 0
                         controllerHideOnTouch = false
                     }
                     Player.STATE_READY -> binding.videoView.apply {
-                        useController = false
-                        hideController()
+                        // Hide while its not end
+                        useController = true
+                       // hideController()
+                        showController()
                     }
                 }
             }
         })
     }
 
+    // Preparing and initialization of player
     private fun initVideoPlayer(videoPlayer: ExoPlayer) {
         videoPlayer.apply {
             setMediaSource(buildMediaSource())
@@ -54,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Initialization of mediasource
     private fun buildMediaSource(): MediaSource {
         val dataSourceFactory = DefaultDataSource.Factory(this)
         return ProgressiveMediaSource.Factory(dataSourceFactory)
